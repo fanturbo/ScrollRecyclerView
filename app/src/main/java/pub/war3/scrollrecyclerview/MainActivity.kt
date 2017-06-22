@@ -9,11 +9,15 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
     private var amountAxisY = 0
+    private var amountAxisX = 0
+    private var normalCellWidth = 0
+    lateinit var mRecyclerView:RecyclerView
     private lateinit var excelPanelAdapter: DemoAdapter
     /**
      * vertical listener
@@ -29,11 +33,25 @@ class MainActivity : AppCompatActivity() {
             val count = recyclerView?.getChildCount()
             if (count != null)
                 for (i in 0..count) {
-                    val view = recyclerView?.getChildAt(i)
+                    val view =  mRecyclerView?.getChildAt(i)
                     if (view is RecyclerView) {
                         fastScrollVertical(amountAxisY, view)
                     }
                 }
+        }
+    }
+    /**
+     * horizontal listener
+     */
+    private val contentScrollListener = object : RecyclerView.OnScrollListener() {
+        override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+        }
+
+        override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            amountAxisX += dx
+            fastScrollTo(amountAxisX, mRecyclerView, 0, false)
         }
     }
 
@@ -41,6 +59,21 @@ class MainActivity : AppCompatActivity() {
         val linearLayoutManager = recyclerView.layoutManager as LinearLayoutManager
         //call this method the OnScrollListener's onScrolled will be called，but dx and dy always be zero.
         linearLayoutManager.scrollToPositionWithOffset(0, -amountAxis)
+    }
+
+    private fun fastScrollTo(amountAxis: Int, recyclerView: RecyclerView, offset: Int, hasHeader: Boolean) {
+        var amountAxis = amountAxis
+        var position = 0
+        val width = normalCellWidth
+        if (amountAxis >= offset && hasHeader) {
+            amountAxis -= offset
+            position++
+        }
+        position += amountAxis / width
+        amountAxis %= width
+        val linearLayoutManager = recyclerView.layoutManager as LinearLayoutManager
+        //call this method the OnScrollListener's onScrolled will be called，but dx and dy always be zero.
+        linearLayoutManager.scrollToPositionWithOffset(position, -amountAxis)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +88,7 @@ class MainActivity : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this)
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL)
         recyclerView.layoutManager = layoutManager
+        mRecyclerView = recyclerView
         var list: MutableList<String> = mutableListOf<String>()
         for (i in 1..20) {
             list.add("i = " + i)

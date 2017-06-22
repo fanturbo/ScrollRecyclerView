@@ -30,12 +30,12 @@ class DemoAdapter(val data: List<String>, val listener: RecyclerView.OnScrollLis
             val layoutManager = LinearLayoutManager(itemView.context)
             layoutManager.setOrientation(LinearLayoutManager.VERTICAL)
             itemView.recyclerView.layoutManager = layoutManager
-            itemView.recyclerView.addOnScrollListener(listener)
             var list: MutableList<String> = mutableListOf<String>()
             for (j in 1..30) {
                 list.add("j = " + j)
             }
             itemView.recyclerView.adapter = DemoChildAdapter(list)
+            itemView.recyclerView.addOnScrollListener(listener)
         }
     }
 }
